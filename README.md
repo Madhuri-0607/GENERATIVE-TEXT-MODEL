@@ -1,5 +1,9 @@
-
-
+COMPANY: CODTECH IT SOLUTIONS
+NAME: MOTHUKURI MADHURI
+INTERN ID: C0DF104
+DOMAIN: Artificial Intelligence Markup Language (AIML Internship)
+DURATION: 4 WEEKS
+MENTOR: NEELA SANTHOSH
 
 
 # GENERATIVE-TEXT-MODEL
@@ -66,7 +70,7 @@ See requirements.txt for full dependency list.
 📜 License  
 This project is licensed under the MIT License.  
 
-🙏 Acknowledgements  
+Acknowledgements  
 Hugging Face Transformers    
 OpenAI GPT-2     
 Streamlit  
