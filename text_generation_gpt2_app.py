@@ -23,20 +23,46 @@ def load_model():
 
 tokenizer, model = load_model()
 
-# Define Text Generation Function with error handling
-def generate_text(prompt, max_length=150, temperature=0.7, top_k=50):
+# Define Text Generation Function with enhanced completion
+def generate_text(prompt, max_length=150, writing_style="creative"):
     try:
-        inputs = tokenizer.encode(prompt, return_tensors="pt")
+        # Create style-specific prompts with clear instructions
+        style_instructions = {
+            "creative": "Write a creative and imaginative continuation that completes the thought:",
+            "formal": "Write a formal and well-structured completion of:",
+            "humorous": "Write a funny and entertaining completion of:",
+            "poetic": "Write a poetic and lyrical completion of:",
+            "technical": "Write a precise and technical completion of:"
+        }
+        
+        instruction = style_instructions.get(writing_style.lower(), "Write a completion of:")
+        full_prompt = f"{instruction} {prompt}\n\nCompletion:"
+        
+        inputs = tokenizer.encode(full_prompt, return_tensors="pt")
+        
+        # Generate text with attention to completion
         outputs = model.generate(
             inputs,
             max_length=max_length,
+            min_length=max(50, int(max_length * 0.7)),  # Ensure substantial completion
             do_sample=True,
-            top_k=top_k,
-            temperature=temperature,
             num_return_sequences=1,
-            pad_token_id=tokenizer.eos_token_id
+            pad_token_id=tokenizer.eos_token_id,
+            no_repeat_ngram_size=3,  # Reduce repetition
+            early_stopping=True  # Stop at natural conclusion
         )
-        return tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        # Remove the prompt part and ensure completion
+        if prompt in generated_text:
+            generated_text = generated_text.replace(full_prompt, "").strip()
+        
+        # Ensure the text ends with proper punctuation
+        if generated_text and generated_text[-1] not in {'.', '!', '?', '"', "'"}:
+            generated_text += "."
+            
+        return generated_text
     except Exception as e:
         st.error(f"✨ The magic spell failed! Error: {str(e)}")
         return None
@@ -91,7 +117,6 @@ st.markdown("""
 
 # Sidebar with additional features
 with st.sidebar:
-   
     st.markdown("### 🔮 Magic Settings")
     
     # Theme selector
@@ -116,14 +141,13 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    
 
 # Main app interface
 st.title("✨ Magic Text Generator")
 st.markdown("""
 <div style="background-color:#f0f2f6;padding:20px;border-radius:10px;margin-bottom:20px;">
     <h3 style="color:#9c27b0;">🧙‍♂️ Conjure creative text with AI magic!</h3>
-    <p>Enter a prompt below and adjust the settings to control the creativity of your generated text.</p>
+    <p>Enter a prompt below and the AI will generate a complete response in your selected style.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -132,35 +156,21 @@ if 'random_prompt' in st.session_state:
     prompt = st.text_area(
         "📝 Enter your prompt or story starter:",
         value=st.session_state.random_prompt,
-        help="The AI will continue from where you leave off"
+        help="The AI will generate a complete response based on your input"
     )
 else:
     prompt = st.text_area(
         "📝 Enter your prompt or story starter:",
         value="The future of artificial intelligence",
-        help="The AI will continue from where you leave off"
+        help="The AI will generate a complete response based on your input"
     )
 
-# Creative controls in expandable section
-with st.expander("🎚️ Advanced Magic Controls", expanded=True):
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        max_len = st.slider(
-            "📏 Max Length",
-            50, 500, 150, step=10,
-            help="How long the generated text should be"
-        )
-    with col2:
-        temperature = st.slider(
-            "🌡️ Temperature",
-            0.1, 1.5, 0.7, step=0.1,
-            help="Higher values = more creative/risky, lower = more predictable"
-        )
-    
-    top_k = st.slider(
-        "🔝 Top-K Sampling",
-        10, 200, 50, step=10,
-        help="Limits choices to top K most likely next words"
+# Generation settings
+with st.expander("⚙️ Generation Settings", expanded=True):
+    max_len = st.slider(
+        "📏 Response Length",
+        50, 500, 150, step=10,
+        help="Approximate length of the generated response"
     )
 
 # Generate button with animation
@@ -171,14 +181,10 @@ generate = st.button(
 
 if generate and prompt.strip():
     with st.spinner("🌀 The AI wizard is conjuring your text..."):
-        # Add writing style to prompt
-        styled_prompt = f"Write in a {writing_style.lower()} style: {prompt}"
-        
         output = generate_text(
-            styled_prompt,
+            prompt,
             max_length=max_len,
-            temperature=temperature,
-            top_k=top_k
+            writing_style=writing_style.lower()
         )
     
     if output:
@@ -229,8 +235,5 @@ elif generate:
 # Add footer
 st.markdown("---")
 st.markdown("""
-<div style="text-align:center;color:#666;font-size:0.9em;">
-    <p>✨ This app uses OpenAI's GPT-2 model for text generation</p>
-    <p>Remember: All generated content is fictional and for creative purposes only</p>
-</div>
+
 """, unsafe_allow_html=True)
