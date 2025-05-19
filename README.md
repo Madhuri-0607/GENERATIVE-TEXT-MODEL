@@ -12,7 +12,8 @@ MENTOR: NEELA SANTHOSH
 
 🧙‍♂️ A Streamlit-based web application that lets users generate creative text using OpenAI's GPT-2 model. Unleash your imagination with AI-powered storytelling, poetry, humor, and more!
 
-![screenshot]![WhatsApp Image 2025-05-19 at 13 51 12_348f4fdd](https://github.com/user-attachments/assets/0102aa37-206d-4f8c-a101-88c9ac788fe4)
+
+![WhatsApp Image 2025-05-19 at 20 19 52_c5f2fe6b](https://github.com/user-attachments/assets/a12554e2-9a6c-4a46-a071-1b3039c72140)
 
 ![screenshot]![WhatsApp Image 2025-05-19 at 14 14 39_4d4f9a8b](https://github.com/user-attachments/assets/a0c931fb-dd68-4538-ae48-8368f2086e06)
 
